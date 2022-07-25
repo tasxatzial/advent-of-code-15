@@ -1,7 +1,10 @@
 (ns day01.core
   (:gen-class))
 
+(def input-file "resources\\input.txt")
+
+(def directions (slurp input-file))
+
 (defn -main
-  "I don't do a whole lot ... yet."
-  [& args]
-  (println "Hello, World!"))
+  []
+  (println directions))
