@@ -38,12 +38,49 @@
        (mapv #(re-find (re-pattern %) s))
        (every? nil?)))
 
-(defn nice-string?
-  "Returns true if the given string is nice, false otherwise."
+(defn nice-string_p1?
+  "Returns true if the given string is nice, false otherwise (problem 1)"
   [s]
   (and (prop1-p1? s)
        (prop2-p1? s)
        (prop3-p1? s)))
+
+; --------------------------
+; problem 2
+
+(defn create-two-letter-substrings
+  "Return a vector of all two letter substrings of the given string."
+  [s]
+  (mapv #(apply str %) (partition 2 1 s)))
+
+(defn find-string
+  "Returns true if the collection of strings contains string s, false otherwise."
+  [s strings]
+  (some #{s} strings))
+
+(defn prop1-p2?
+  "Returns true if the given string contains a pair of any two letters that appears
+  at least twice in the string without overlapping, else it returns false."
+  [s]
+  (let [two-letter-substrings (create-two-letter-substrings s)]
+    (loop [[substr & rest-substr] two-letter-substrings]
+      (if substr
+        (if (find-string substr (rest rest-substr))
+          true
+          (recur rest-substr))
+        false))))
+
+(defn prop2-p2?
+  "Returns true if the given string contains at least one letter which repeats with
+  exactly one letter between them, else it returns false."
+  [s]
+  (boolean (re-find #"(.).\1" s)))
+
+(defn nice-string_p2?
+  "Returns true if the given string is nice, false otherwise (problem 2)"
+  [s]
+  (and (prop1-p2? s)
+       (prop2-p2? s)))
 
 ; --------------------------
 ; results
@@ -51,10 +88,11 @@
 (defn day05-1
   []
   (->> strings
-       (map nice-string?)
+       (map nice-string_p1?)
        (filter true?)
        (count)))
 
 (defn -main
   []
-  (println (day05-1)))
+  (println (day05-1))
+  (println (nice-string_p2? "ieodomkazucvgmuy")))
