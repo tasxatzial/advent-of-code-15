@@ -46,6 +46,23 @@
        (apply +)))
 
 ; --------------------------
+; problem 2
+
+(defn find-gift-ribbon
+  "Returns the ribbon required for the given gift.
+  Gift is a vector of 3 numbers."
+  [gift]
+  (let [l (get gift 0)
+        w (get gift 1)
+        h (get gift 2)
+        lw (* 2 (+ l w))
+        lh (* 2 (+ l h))
+        wh (* 2 (+ w h))
+        min-perimeter (min lw lh wh)
+        area (* l w h)]
+    (+ min-perimeter area)))
+
+; --------------------------
 ; results
 
 (defn day02-1
@@ -54,4 +71,5 @@
 
 (defn -main
   []
-  (println (day02-1)))
+  (println (day02-1))
+  (println (find-gift-ribbon [2 3 4])))
