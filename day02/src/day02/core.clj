@@ -62,6 +62,13 @@
         area (* l w h)]
     (+ min-perimeter area)))
 
+(defn find-total-gift-ribbon
+  "Find the total ribbon required by the gifts."
+  [gift-dimensions]
+  (->> gift-dimensions
+       (mapv find-gift-ribbon)
+       (apply +)))
+
 ; --------------------------
 ; results
 
@@ -69,7 +76,11 @@
   []
   (find-total-gift-paper gift-dimensions))
 
+(defn day02-2
+  []
+  (find-total-gift-ribbon gift-dimensions))
+
 (defn -main
   []
   (println (day02-1))
-  (println (find-gift-ribbon [2 3 4])))
+  (println (day02-2)))
