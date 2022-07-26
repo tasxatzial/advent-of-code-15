@@ -48,6 +48,13 @@
 ; --------------------------
 ; results
 
+(defn day05-1
+  []
+  (->> strings
+       (map nice-string?)
+       (filter true?)
+       (count)))
+
 (defn -main
   []
-  (println (nice-string? "aaa")))
+  (println (day05-1)))
