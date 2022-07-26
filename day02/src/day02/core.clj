@@ -38,9 +38,20 @@
         min-area (min lw lh wh)]
     (+ min-area (* 2 (+ lw lh wh)))))
 
+(defn find-total-gift-paper
+  "Find the total paper area required by the gifts."
+  [gift-dimensions]
+  (->> gift-dimensions
+       (mapv find-gift-paper)
+       (apply +)))
+
 ; --------------------------
 ; results
 
+(defn day02-1
+  []
+  (find-total-gift-paper gift-dimensions))
+
 (defn -main
   []
-  (println (find-gift-paper [1 1 10])))
+  (println (day02-1)))
