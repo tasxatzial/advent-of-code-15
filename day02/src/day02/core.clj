@@ -23,8 +23,24 @@
 (def gift-dimensions (parse (slurp input-file)))
 
 ; --------------------------
+; problem 1
+
+(defn find-gift-paper
+  "Returns the total area of the paper required for the given gift.
+  Gift is a vector of 3 numbers."
+  [gift]
+  (let [l (get gift 0)
+        w (get gift 1)
+        h (get gift 2)
+        lw (* l w)
+        lh (* l h)
+        wh (* w h)
+        min-area (min lw lh wh)]
+    (+ min-area (* 2 (+ lw lh wh)))))
+
+; --------------------------
 ; results
 
 (defn -main
   []
-  (println gift-dimensions))
+  (println (find-gift-paper [1 1 10])))
