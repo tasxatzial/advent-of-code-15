@@ -34,6 +34,10 @@
 ; --------------------------
 ; results
 
+(defn day03-1
+  []
+  (count (house-locations instructions)))
+
 (defn -main
   []
-  (println (house-locations instructions)))
+  (println (day03-1)))
