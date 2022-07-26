@@ -85,14 +85,14 @@
 ; --------------------------
 ; results
 
-(defn day05-1
-  []
+(defn day05
+  [nice-fn]
   (->> strings
-       (map nice-string_p1?)
+       (map nice-fn)
        (filter true?)
        (count)))
 
 (defn -main
   []
-  (println (day05-1))
-  (println (nice-string_p2? "ieodomkazucvgmuy")))
+  (println (day05 nice-string_p1?))
+  (println (day05 nice-string_p2?)))
