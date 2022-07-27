@@ -35,9 +35,37 @@
 
 (def instructions (parse (slurp input-file)))
 
+(defn is-included?
+  "Returns true if [x0 y0] is contained in the rectangle specified by
+  the top-left corner [x1 y1] and bottom-right corner [x2 y2], else it returns false."
+  [[x0 y0] [x1 y1] [x2 y2]]
+  (and (>= x2 x0 x1)
+       (>= y2 y0 y1)))
+
+(defn final-state
+  "Computes the final state of a light positioned at loc. New-state-fn is the
+  function that computes its next state."
+  [loc initial-state new-state-fn]
+  (loop [state initial-state
+         [instruction & rest-instructions] instructions]
+    (if instruction
+      (let [next-state (new-state-fn state loc instruction)]
+        (recur next-state rest-instructions))
+      state)))
+
+(defn grid
+  "Returns a 1000x1000 grid. Coordinates start from [0 0] and go up to [999 999]."
+  []
+  (for [x (range 1000)
+        y (range 1000)]
+    [x y]))
+
+(def memoized-grid (memoize grid))
+
 ; --------------------------
 ; results
 
 (defn -main
   []
-  (println instructions))
+  (println (day06-1))
+  (println (day06-2)))
