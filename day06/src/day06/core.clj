@@ -63,9 +63,30 @@
 (def memoized-grid (memoize grid))
 
 ; --------------------------
+; problem 1
+
+(defn new-state_p1
+  "Returns the new state of a light positioned at loc when it receives an instruction of
+  the form [cmd loc1 loc2]."
+  [state loc [cmd loc1 loc2]]
+  (if (is-included? loc loc1 loc2)
+    (if (= :toggle cmd)
+      (if (= :off state)
+        :on
+        :off)
+      cmd)
+    state))
+
+; --------------------------
 ; results
+
+(defn day06-1
+  []
+  (->> (memoized-grid)
+       (map #(final-state % :off new-state_p1))
+       (filter #{:on})
+       count))
 
 (defn -main
   []
-  (println (day06-1))
-  (println (day06-2)))
+  (println (day06-1)))
