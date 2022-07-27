@@ -67,7 +67,7 @@
 
 (defn new-state_p1
   "Returns the new state of a light positioned at loc when it receives an instruction of
-  the form [cmd loc1 loc2]."
+  the form [cmd loc1 loc2] (problem 1)"
   [state loc [cmd loc1 loc2]]
   (if (is-included? loc loc1 loc2)
     (if (= :toggle cmd)
@@ -75,6 +75,20 @@
         :on
         :off)
       cmd)
+    state))
+
+; --------------------------
+; problem 2
+
+(defn new-state_p2
+  "Returns the new state of a light positioned at loc when it receives an instruction of
+  the form [cmd loc1 loc2] (problem 2)"
+  [state loc [cmd loc1 loc2]]
+  (if (is-included? loc loc1 loc2)
+    (case cmd
+      :toggle (+ state 2)
+      :on (inc state)
+      :off (max (dec state) 0))
     state))
 
 ; --------------------------
@@ -87,6 +101,13 @@
        (filter #{:on})
        count))
 
+(defn day06-2
+  []
+  (->> (memoized-grid)
+       (map #(final-state % 0 new-state_p2))
+       (apply +)))
+
 (defn -main
   []
-  (println (day06-1)))
+  (println (day06-1))
+  (println (day06-2)))
