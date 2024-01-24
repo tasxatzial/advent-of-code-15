@@ -8,8 +8,8 @@
 ; --------------------------
 ; problem 1
 
-(defn find-final-floor
-  "Finds santa's final floor."
+(defn get-final-floor
+  "Returns santa's final floor."
   []
   (let [steps (group-by identity instructions)
         up-count (count (get steps \())
@@ -19,8 +19,9 @@
 ; --------------------------
 ; problem 2
 
-(defn find-first-negative
-  "Finds the position of the first instruction that causes santa to enter the basement."
+(defn get-basement-index
+  "Returns the position of the first instruction that causes santa to enter
+  the basement."
   []
   (loop [[instruction & rest-instructions] instructions
          instruction-index 0
@@ -37,11 +38,11 @@
 
 (defn day01-1
   []
-  (find-final-floor))
+  (get-final-floor))
 
 (defn day01-2
   []
-  (find-first-negative))
+  (get-basement-index))
 
 (defn -main
   []
