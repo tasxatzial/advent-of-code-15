@@ -8,9 +8,12 @@
 
 (def instructions (slurp input-file))
 
-(defn next-house-location
+; --------------------------
+; problem 1
+
+(defn get-next-house-location
   "Finds the location of the next house based on the current location [x y]
-  and an instruction (^ > v <)."
+  and an instruction char (^ > v <). Returns a vector."
   [[x y] instruction]
   (case instruction
     \^ [x (inc y)]
@@ -18,14 +21,16 @@
     \> [(inc x) y]
     \< [(dec x) y]))
 
-(defn house-locations
-  "Finds the locations of all houses that receive at least one present."
+(defn get-all-visited-houses
+  "Parses the input string and returns the locations of all houses that will
+  be visited at least once. Returns a set of vectors, each vector represents
+  a location."
   [instructions]
   (loop [[instruction & rest-instructions] instructions
          curr-location [0 0]
          house-locations #{curr-location}]
     (if instruction
-      (let [new-location (next-house-location curr-location instruction)]
+      (let [new-location (get-next-house-location curr-location instruction)]
         (if (contains? house-locations new-location)
           (recur rest-instructions new-location house-locations)
           (recur rest-instructions new-location (conj house-locations new-location))))
@@ -35,8 +40,8 @@
 ; problem 2
 
 (defn separate-instructions
-  "Splits the instructions into two vectors, first one is for santa,
-  second one is for robosanta."
+  "Splits the input string into two vectors as shown in the description.
+  First vector is for santa, the second one is for robosanta."
   [instructions]
   (let [split-instructions (partition 2 instructions)
         santa-instructions (mapv first split-instructions)
@@ -48,13 +53,13 @@
 
 (defn day03-1
   []
-  (count (house-locations instructions)))
+  (count (get-all-visited-houses instructions)))
 
 (defn day03-2
   []
   (let [[santa-instructions robosanta-instructions] (separate-instructions instructions)
-        santa-houses (house-locations santa-instructions)
-        robosanta-houses (house-locations robosanta-instructions)]
+        santa-houses (get-all-visited-houses santa-instructions)
+        robosanta-houses (get-all-visited-houses robosanta-instructions)]
     (count (into santa-houses robosanta-houses))))
 
 (defn -main
