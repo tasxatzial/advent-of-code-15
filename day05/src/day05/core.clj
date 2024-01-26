@@ -6,12 +6,14 @@
 
 (def input-file "resources\\input.txt")
 
-(defn parse
-  "Splits the input string by \n and converts it into a vector of strings."
-  [s]
-  (clojure.string/split-lines s))
+(defn get-input-strings
+  "Reads and parses the input file into a vector of strings."
+  []
+  (-> input-file
+      slurp
+      clojure.string/split-lines))
 
-(def strings (parse (slurp input-file)))
+(def memoized-get-input-strings (memoize get-input-strings))
 
 (defn is-vowel?
   [c]
@@ -20,45 +22,45 @@
 ; --------------------------
 ; problem 1
 
-(defn prop1-p1?
+(defn p1_has-prop1?
   "Returns true if the given string has at least 3 vowels, false otherwise."
   [s]
   (>= (count (filter is-vowel? s)) 3))
 
-(defn prop2-p1?
+(defn p1_has-prop2?
   "Returns true if the given string has least one letter that appears twice in a row,
   false otherwise."
   [s]
   (boolean (re-find #"([a-z])\1" s)))
 
-(defn prop3-p1?
+(defn p1_has-prop3?
   "Returns true if the given string does not contain ab, cd, pq, xy, false otherwise."
   [s]
   (->> ["ab" "cd" "pq" "xy"]
        (mapv #(re-find (re-pattern %) s))
        (every? nil?)))
 
-(defn nice-string_p1?
-  "Returns true if the given string is nice, false otherwise (problem 1)"
+(defn p1_nice-string?
+  "Returns true if the given string is nice, false otherwise."
   [s]
-  (and (prop1-p1? s)
-       (prop2-p1? s)
-       (prop3-p1? s)))
+  (and (p1_has-prop1? s)
+       (p1_has-prop2? s)
+       (p1_has-prop3? s)))
 
 ; --------------------------
 ; problem 2
 
 (defn create-two-letter-substrings
-  "Return a vector of all two letter substrings of the given string."
+  "Returns a vector of all two letter substrings of the given string."
   [s]
   (mapv #(apply str %) (partition 2 1 s)))
 
 (defn find-string
-  "Returns true if the collection of strings contains string s, false otherwise."
+  "Returns true if the given collection of strings contains s, nil otherwise."
   [s strings]
   (some #{s} strings))
 
-(defn prop1-p2?
+(defn p2_prop1?
   "Returns true if the given string contains a pair of any two letters that appears
   at least twice in the string without overlapping, else it returns false."
   [s]
@@ -70,29 +72,29 @@
           (recur rest-substr))
         false))))
 
-(defn prop2-p2?
+(defn p2_prop2?
   "Returns true if the given string contains at least one letter which repeats with
   exactly one letter between them, else it returns false."
   [s]
   (boolean (re-find #"(.).\1" s)))
 
-(defn nice-string_p2?
-  "Returns true if the given string is nice, false otherwise (problem 2)"
+(defn p2_nice-string?
+  "Returns true if the given string is nice, false otherwise."
   [s]
-  (and (prop1-p2? s)
-       (prop2-p2? s)))
+  (and (p2_prop1? s)
+       (p2_prop2? s)))
 
 ; --------------------------
 ; results
 
 (defn day05
-  [nice-fn]
-  (->> strings
-       (map nice-fn)
+  [nice-fn?]
+  (->> (memoized-get-input-strings)
+       (map nice-fn?)
        (filter true?)
        (count)))
 
 (defn -main
   []
-  (println (day05 nice-string_p1?))
-  (println (day05 nice-string_p2?)))
+  (println (day05 p1_nice-string?))
+  (println (day05 p2_nice-string?)))
