@@ -7,43 +7,40 @@
 (def input-file "resources\\input.txt")
 
 (defn parse-loc
-  "Accepts a collection of strings and maps each element to an integer. Returns a vector."
+  "Parses a location formatted as \"x,y\" into a vector of two numbers."
   [loc]
-  (mapv #(Integer/parseInt %) loc))
+  (mapv #(Integer/parseInt %) (clojure.string/split loc #",")))
 
 (defn parse-line
-  "Parses an input line and returns a vector that consists of:
-  a keyword (:on :off :toggle) and two vectors that correspond to the
-  opposite corners of a rectangle."
+  "Parses an input line into a vector that consists of
+  a keyword (:on :off :toggle) and two location vectors."
   [s]
-  (let [replaced-s (-> s
-                       (clojure.string/replace #"turn on " "~on~")
-                       (clojure.string/replace #"turn off " "~off~")
-                       (clojure.string/replace #"toggle " "~toggle~")
-                       (clojure.string/split #"~| through "))
-        [instr loc1 loc2] (->> replaced-s
-                               (filter (complement clojure.string/blank?))
-                               (map #(clojure.string/split % #",")))
-        instr-key (keyword (first instr))]
-    (vector instr-key (parse-loc loc1) (parse-loc loc2))))
+  (let [cleared-s (re-seq #"on|off|toggle|\d+,\d+" s)
+        loc1 (parse-loc (second cleared-s))
+        loc2 (parse-loc (last cleared-s))
+        state (keyword (first cleared-s))]
+    [state loc1 loc2]))
 
-(defn parse
-  "Parses the input and returns a vector of instructions.
+(defn get-instructions
+  "Reads and parses the input file into vector of instructions.
   An instruction is represented by the data structure returned by parse-line."
-  [s]
-  (mapv parse-line (clojure.string/split-lines s)))
+  []
+  (->> input-file
+       slurp
+       clojure.string/split-lines
+       (mapv parse-line)))
 
-(def instructions (parse (slurp input-file)))
+(def memoized-instructions (memoize get-instructions))
 
 (defn is-included?
   "Returns true if [x0 y0] is contained in the rectangle specified by
-  the top-left corner [x1 y1] and bottom-right corner [x2 y2], else it returns false."
+  the top-left corner [x1 y1] and bottom-right corner [x2 y2], else false."
   [[x0 y0] [x1 y1] [x2 y2]]
   (and (>= x2 x0 x1)
        (>= y2 y0 y1)))
 
 (defn grid
-  "Returns a 1000x1000 grid. Coordinates start from [0 0] and go up to [999 999]."
+  "Returns a 1000x1000 grid with coordinates from [0 0] to [999 999]."
   []
   (for [x (range 1000)
         y (range 1000)]
@@ -54,11 +51,11 @@
 ; --------------------------
 ; problem 1
 
-(def reversed-instructions (rseq instructions))
+(def reversed-instructions (rseq (memoized-instructions)))
 
-(defn compute-state_p1
-  "Finds the final state of a light given its initial state and the number
-  of times its state has been toggled (problem 1)."
+(defn p1_compute-final-state-when-toggled
+  "Returns the final state of a light given its initial state and the number
+  of times its state has been toggled."
   [initial-state toggle-count]
   (if (even? toggle-count)
     initial-state
@@ -66,42 +63,45 @@
       :off
       :on)))
 
-(defn final-state_p1
-  "Returns the final state of a light positioned at loc (problem 1)"
+(defn p1_compute-final-state
+  "Returns the final state of a light positioned at loc."
   [loc]
   (loop [[[cmd loc1 loc2] & rest-instructions] reversed-instructions
          toggle-count 0]
     (if cmd
       (if (is-included? loc loc1 loc2)
         (case cmd
-          :on (compute-state_p1 :on toggle-count)
-          :off (compute-state_p1 :off toggle-count)
+          :on (p1_compute-final-state-when-toggled :on toggle-count)
+          :off (p1_compute-final-state-when-toggled :off toggle-count)
           :toggle (recur rest-instructions (inc toggle-count)))
         (recur rest-instructions toggle-count))
-      (compute-state_p1 :off toggle-count))))
+      (p1_compute-final-state-when-toggled :off toggle-count))))
 
 ; --------------------------
 ; problem 2
 
-(defn compute-state_p2
-  "Returns the new state of a light positioned at loc when it receives an instruction of
-  the form [cmd loc1 loc2] (problem 2)"
-  [state loc [cmd loc1 loc2]]
-  (if (is-included? loc loc1 loc2)
-    (case cmd
-      :toggle (+ state 2)
-      :on (inc state)
-      :off (max (dec state) 0))
-    state))
+(defn p2_compute-new-state
+  "Returns the new state of a light positioned at loc when it receives an
+  instruction. An instruction is represented by the data structure returned
+  by parse-line."
+  [state loc instruction]
+  (let [[cmd loc1 loc2] instruction]
+    (if (is-included? loc loc1 loc2)
+      (case cmd
+        :toggle (+ state 2)
+        :on (inc state)
+        :off (max (dec state) 0))
+      state)))
 
-(defn final-state_p2
-  "Computes the final state of a light positioned at loc (problem 2)"
-  [loc initial-state]
-  (loop [state initial-state
-         [instruction & rest-instructions] instructions]
+(defn p2_compute-final-state
+  "Returns the final state of a light positioned at loc."
+  [loc]
+  (loop [state 0
+         [instruction & rest-instructions] (memoized-instructions)]
     (if instruction
-      (let [next-state (compute-state_p2 state loc instruction)]
-        (recur next-state rest-instructions))
+      (-> state
+          (p2_compute-new-state loc instruction)
+          (recur rest-instructions))
       state)))
 
 ; --------------------------
@@ -110,15 +110,15 @@
 (defn day06-1
   []
   (->> (memoized-grid)
-       (map #(final-state_p1 %))
+       (map p1_compute-final-state)
        (filter #{:on})
        count))
 
 (defn day06-2
   []
   (->> (memoized-grid)
-       (map #(final-state_p2 % 0))
-       (apply +)))
+       (map p2_compute-final-state)
+       (reduce +)))
 
 (defn -main
   []
