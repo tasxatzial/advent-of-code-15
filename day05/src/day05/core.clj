@@ -6,14 +6,14 @@
 
 (def input-file "resources\\input.txt")
 
-(defn get-input-strings
+(defn parse-file
   "Reads and parses the input file into a vector of strings."
   []
   (-> input-file
       slurp
       clojure.string/split-lines))
 
-(def memoized-get-input-strings (memoize get-input-strings))
+(def memoized-input-file->strings (memoize parse-file))
 
 (defn is-vowel?
   [c]
@@ -89,7 +89,7 @@
 
 (defn day05
   [nice-fn?]
-  (->> (memoized-get-input-strings)
+  (->> (memoized-input-file->strings)
        (map nice-fn?)
        (filter true?)
        (count)))

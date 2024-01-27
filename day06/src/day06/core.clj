@@ -21,7 +21,7 @@
         state (keyword (first cleared-s))]
     [state loc1 loc2]))
 
-(defn get-instructions
+(defn parse-file
   "Reads and parses the input file into vector of instructions.
   An instruction is represented by the data structure returned by parse-line."
   []
@@ -30,7 +30,7 @@
        clojure.string/split-lines
        (mapv parse-line)))
 
-(def memoized-instructions (memoize get-instructions))
+(def memoized-input-file->instructions (memoize parse-file))
 
 (defn is-included?
   "Returns true if [x0 y0] is contained in the rectangle specified by
@@ -51,7 +51,7 @@
 ; --------------------------
 ; problem 1
 
-(def reversed-instructions (rseq (memoized-instructions)))
+(def reversed-instructions (rseq (memoized-input-file->instructions)))
 
 (defn p1_compute-final-state-when-toggled
   "Returns the final state of a light given its initial state and the number
@@ -97,7 +97,7 @@
   "Returns the final state of a light positioned at loc."
   [loc]
   (loop [state 0
-         [instruction & rest-instructions] (memoized-instructions)]
+         [instruction & rest-instructions] (memoized-input-file->instructions)]
     (if instruction
       (-> state
           (p2_compute-new-state loc instruction)

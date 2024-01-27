@@ -13,7 +13,7 @@
   (let [split-s (clojure.string/split s #"x")]
     (mapv #(Integer/parseInt %) split-s)))
 
-(defn get-all-dimensions
+(defn parse-file
   "Reads and parses the input file into a vector of vectors. Each vector
   holds the gift dimensions as returned by parse-line."
   []
@@ -22,7 +22,7 @@
        clojure.string/split-lines
        (mapv parse-line)))
 
-(def memoized-get-all-dimensions (memoize get-all-dimensions))
+(def memoized-input-file->dimensions (memoize parse-file))
 
 ; --------------------------
 ; problem 1
@@ -76,11 +76,11 @@
 
 (defn day02-1
   []
-  (get-gifts-total-paper (memoized-get-all-dimensions)))
+  (get-gifts-total-paper (memoized-input-file->dimensions)))
 
 (defn day02-2
   []
-  (get-gifts-total-ribbon (memoized-get-all-dimensions)))
+  (get-gifts-total-ribbon (memoized-input-file->dimensions)))
 
 (defn -main
   []
