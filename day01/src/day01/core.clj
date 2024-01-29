@@ -3,7 +3,7 @@
 
 (def input-file "resources\\input.txt")
 
-(def instructions (slurp input-file))
+(def memoized-input-file->instructions (fn [] (slurp input-file)))
 
 ; --------------------------
 ; problem 1
@@ -11,7 +11,7 @@
 (defn get-final-floor
   "Returns santa's final floor."
   []
-  (let [steps (group-by identity instructions)
+  (let [steps (group-by identity (memoized-input-file->instructions))
         up-count (count (get steps \())
         down-count (count (get steps \)))]
     (- up-count down-count)))
@@ -23,7 +23,7 @@
   "Returns the position of the first instruction that causes santa to enter
   the basement."
   []
-  (loop [[instruction & rest-instructions] instructions
+  (loop [[instruction & rest-instructions] (memoized-input-file->instructions)
          instruction-index 0
          floor 0]
     (if instruction

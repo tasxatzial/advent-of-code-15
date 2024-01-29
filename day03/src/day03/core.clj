@@ -6,7 +6,7 @@
 
 (def input-file "resources\\input.txt")
 
-(def instructions (slurp input-file))
+(def memoized-input-file->instructions (fn [] (slurp input-file)))
 
 ; --------------------------
 ; problem 1
@@ -53,11 +53,13 @@
 
 (defn day03-1
   []
-  (count (get-all-visited-houses instructions)))
+  (-> (memoized-input-file->instructions)
+      get-all-visited-houses
+      count))
 
 (defn day03-2
   []
-  (let [[santa-instructions robosanta-instructions] (separate-instructions instructions)
+  (let [[santa-instructions robosanta-instructions] (separate-instructions (memoized-input-file->instructions))
         santa-houses (get-all-visited-houses santa-instructions)
         robosanta-houses (get-all-visited-houses robosanta-instructions)]
     (count (into santa-houses robosanta-houses))))
